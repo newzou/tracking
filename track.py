@@ -15,14 +15,30 @@ class Track(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
 
-            original = np.copy(frame)
             fgmask = self._fgbg.apply(frame)
-            ret, thresh = cv2.threshold(fgmask,60 ,255,0)
+            ret, thresh = cv2.threshold(fgmask, 200, 255, 0)
             contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
    
+            count = 0
+            p1x = None
+            p1y = None
+            p2x = None
+            p2y = None
             for c in contours:
                 if cv2.contourArea(c) > 1000:
-                    cv2.drawContours(frame, c, -1, (0,255,0), 3)
+                    count += 1
+                    cx,cy,cw,ch = cv2.boundingRect(c)
+                    if p1x is None or cx < p1x:
+                        p1x = cx
+                    if p1y is None or cy < p1y:
+                        p1y = cy
+                    if p2x is None or p2x < cx+cw:
+                        p2x = cx+cw
+                    if p2y is None or p2y < cy+ch:
+                        p2y = cy+ch
+
+            if count > 0:
+                cv2.rectangle(frame,(p1x,p1y),(p2x,p2y),(0,255,0),2)
 
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
