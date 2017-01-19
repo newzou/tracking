@@ -21,7 +21,7 @@ class Track(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
 
-            #$if self._detector.background(I) is None:
+            #if self._detector.background():
             if not self._detector.hasbg():
                 self._detector.setBackground(frame)
             else:

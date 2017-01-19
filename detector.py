@@ -33,28 +33,3 @@ class Detector(object):
                  found.append(((x,y),(x+w,y+h)))
 
         return found
-
-            #if self._tracker.isTracked((cx, cy, cx+cw, cy+ch)):
-            #    continue
-
-
-#            count += 1
-#            if p1x is None or cx < p1x:
-#                p1x = cx
-#            if p1y is None or cy < p1y:
-#                p1y = cy
-#            if p2x is None or p2x < cx+cw:
-#                p2x = cx+cw
-#            if p2y is None or p2y < cy+ch:
-#                p2y = cy+ch
-#
-#        if self._window is None:
-#            return False
-#        x1, y1, x2, y2 = rect
-#        wx1, wy1, wx2, wy2 = self._window
-#        if x2 < wx1 or wx2 < x1:
-#            return False 
-#        if y2 < wy1 or wy2 < y1:
-#            return False 
-#        return True
-       
