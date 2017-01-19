@@ -3,9 +3,9 @@ import numpy as np
 import time
 
 class Roi(object):
-    def __init__(self, roi, color=(255, 0, 0), window=None):
+    def __init__(self, roi, c=25, window=None):
         self._roi = roi
-        self._color = color
+        self._color = (c,c,c)
         self._window = window
 
     @property
@@ -56,20 +56,23 @@ class Tracker(object):
         roi_hist = cv2.calcHist([hsv_roi], [0], mask, [180], [0,180])
         cv2.normalize(roi_hist, roi_hist, 0, 255, cv2.NORM_MINMAX)
 
-        self._rois.append(Roi(roi_hist, window=rect))
+        c = len(self._rois)*37%255
+        self._rois.append(Roi(roi_hist, c = c, window=rect))
 
     def track(self, frame):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        if len(self._rois) > 0:
-            dst = cv2.calcBackProject([hsv], [0], self._rois[0].roi, [0,180], 1)
+        print(len(self._rois))
+        for roi in self._rois:
+            dst = cv2.calcBackProject([hsv], [0], roi.roi, [0,180], 1)
             
             # apply meanshift to get the new location
-            x1, y1, x2, y2 = self._rois[0].window
+            x1, y1, x2, y2 = roi.window
             track_window = (x1, y1, x2-x1, y2-y1)
             ret, track_window = cv2.meanShift(dst, track_window, self._termcrit)
             x,y,w,h = track_window
 
             self._rois[0].setWindow((x,y,x+w,y+h))
+
 
     def isTracked(self, rect):
         for roi in self.rois:        
