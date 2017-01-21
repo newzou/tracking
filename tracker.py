@@ -62,6 +62,8 @@ class Tracker(object):
     def track(self, frame):
         hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
         print(len(self._rois))
+        cnts = []
+        i = 0
         for roi in self._rois:
             dst = cv2.calcBackProject([hsv], [0], roi.roi, [0,180], 1)
             
@@ -71,11 +73,27 @@ class Tracker(object):
             ret, track_window = cv2.meanShift(dst, track_window, self._termcrit)
             x,y,w,h = track_window
 
-            self._rois[0].setWindow((x,y,x+w,y+h))
+            self._rois[i].setWindow((x,y,x+w,y+h))
+            i += 1
+            cnts.append((x,y,x+w,y+h))
 
+        return cnts
 
     def isTracked(self, rect):
-        for roi in self.rois:        
+        for roi in self._rois:        
             if roi.overlap(rect):
                 return True
         return False
+
+    def check(self, objs):
+        rois = []
+        for roi in self._rois:
+            for obj in objs:
+                if roi.overlap(obj):
+                    rois.append(roi)
+                    break
+
+        self._rois = rois
+         
+       
+    

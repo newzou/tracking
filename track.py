@@ -19,14 +19,31 @@ class Track(object):
         self._windowManager.createWindow()
         while self._windowManager.isWindowCreated:
             self._captureManager.enterFrame()
+
+            # get a new frame 
             frame = self._captureManager.frame
 
+            # detect objects by removing background
             found = self._detector.detect(frame)
+
+            # updated tracked objects
+            self._tracker.check(found) 
+
+            # track objects
+            tracked = self._tracker.track(frame)
+            for t in tracked:
+                t1x, t1y, t2x, t2y = t
+                cv2.rectangle(frame, (t1x, t1y), (t2x, t2y), (0,0,255), 2)
+                
+            # track new objects if there is any
             for obj in found:
                 p1x, p1y, p2x, p2y = obj
-                p1 = (p1x, p1y)
-                p2 = (p2x, p2y)
-                cv2.rectangle(frame, p1, p2, (255,0,0), 2)
+                if self._tracker.isTracked(obj):
+                    cv2.rectangle(frame, (p1x, p1y), (p2x, p2y), (0,0,0), 2)
+                    continue
+
+                self._tracker.addroi(frame, obj) 
+                cv2.rectangle(frame, (p1x, p1y), (p2x, p2y), (0,255,0), 2)
 
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
