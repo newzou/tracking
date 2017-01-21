@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 from manager import WindowManager, CaptureManager
 from tracker import Tracker
+from tracker import SimpleTracker
 from detector import Detector
 
 class Track(object):
@@ -11,7 +12,7 @@ class Track(object):
         self._fgbg = cv2.BackgroundSubtractorMOG()
         self._objectFound = 0
         self._trackWindow = None
-        self._tracker = Tracker()
+        self._tracker = SimpleTracker()
         self._detector = Detector()
 
     def run(self):
@@ -30,10 +31,10 @@ class Track(object):
             self._tracker.check(found) 
 
             # track objects
-            tracked = self._tracker.track(frame)
+            tracked = self._tracker.rois
             for t in tracked:
-                t1x, t1y, t2x, t2y = t
-                cv2.rectangle(frame, (t1x, t1y), (t2x, t2y), (0,0,255), 2)
+                t1x, t1y, t2x, t2y = t.window
+                cv2.rectangle(frame, (t1x, t1y), (t2x, t2y), t.color, 2)
                 
             # track new objects if there is any
             for obj in found:
@@ -42,7 +43,7 @@ class Track(object):
                     cv2.rectangle(frame, (p1x, p1y), (p2x, p2y), (0,0,0), 2)
                     continue
 
-                self._tracker.addroi(frame, obj) 
+                self._tracker.addroi(obj) 
                 cv2.rectangle(frame, (p1x, p1y), (p2x, p2y), (0,255,0), 2)
 
             self._captureManager.exitFrame()

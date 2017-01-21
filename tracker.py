@@ -5,7 +5,7 @@ import time
 class Roi(object):
     def __init__(self, roi, c=25, window=None):
         self._roi = roi
-        self._color = (c,c,c)
+        self._color = (0,0,c)
         self._window = window
 
     @property
@@ -38,7 +38,43 @@ class Roi(object):
             return False 
         return True
        
-        
+class SimpleTracker(object):
+    def __init__(self):
+        self._rois = []
+  
+    @property
+    def rois(self):
+        return self._rois
+
+    def addroi(self, roi):
+        c = 32*len(self._rois) 
+        self._rois.append(Roi(None, c = c, window=roi))
+
+    def check(self, objs):
+        rois = []
+        for roi in self._rois:
+            for obj in objs:
+                if roi.overlap(obj):
+                    p1x, p1y, p2x, p2y = obj
+                    roi.setWindow((p1x-2, p1y-2, p2x+2, p2y+2))
+                    rois.append(roi)
+                    break
+
+        self._rois = rois
+    
+    def track(self, obj):
+        i = 0
+        for roi in self._rois:
+            if roi.overlap(obj):
+                self._rois[i].setWindow(obj)
+                i += 1
+
+    def isTracked(self, rect):
+        for roi in self._rois:        
+            if roi.overlap(rect):
+                return True
+        return False
+         
 class Tracker(object):
     def __init__(self):
         self._rois = []        
@@ -94,6 +130,3 @@ class Tracker(object):
                     break
 
         self._rois = rois
-         
-       
-    
