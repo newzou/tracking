@@ -21,14 +21,12 @@ class Track(object):
             self._captureManager.enterFrame()
             frame = self._captureManager.frame
 
-            #if self._detector.background():
-            if not self._detector.hasbg():
-                self._detector.setBackground(frame)
-            else:
-                found = self._detector.detect(frame)
-                for obj in found:
-                    p1, p2 = obj
-                    cv2.rectangle(frame, p1, p2, (255,0,0), 2)
+            found = self._detector.detect(frame)
+            for obj in found:
+                p1x, p1y, p2x, p2y = obj
+                p1 = (p1x, p1y)
+                p2 = (p2x, p2y)
+                cv2.rectangle(frame, p1, p2, (255,0,0), 2)
 
             self._captureManager.exitFrame()
             self._windowManager.processEvents()
